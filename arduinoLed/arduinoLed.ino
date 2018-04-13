@@ -1,43 +1,36 @@
-/*
- Fade
+#include <SerialCommand.h>
 
- This example shows how to fade an LED on pin 9
- using the analogWrite() function.
+int led = 9;           // the PWM pin the LED is attached to
 
- The analogWrite() function uses PWM, so if
- you want to change the pin you're using, be
- sure to use another PWM capable pin. On most
- Arduino, the PWM pins are identified with 
- a "~" sign, like ~3, ~5, ~6, ~9, ~10 and ~11.
+SerialCommand sCmd;     // The SerialCommand object
 
- This example code is in the public domain.
- */
+int delayval = 500; // delay for half a second
 
-int led = 5;           // the PWM pin the LED is attached to
-int led2 = 6;           // the PWM pin the LED is attached to
-int brightness = 0;    // how bright the LED is
-int fadeAmount = 2;    // how many points to fade the LED by
-
-// the setup routine runs once when you press reset:
 void setup() {
-  // declare pin 9 to be an output:
+  Serial.begin(115200);
   pinMode(led, OUTPUT);
-  pinMode(led2, OUTPUT);
+  sCmd.addCommand("setColor",    setColor);          // Set LED color
 }
 
-// the loop routine runs over and over again forever:
+int cr = 0, cg = 0, cb = 0;
 void loop() {
-  // set the brightness of pin 9:
-  analogWrite(led, brightness);
-  analogWrite(led2, 255);
+  sCmd.readSerial();
+  delay(10);
+  analogWrite(led, cr);
+}
 
-  // change the brightness for next time through the loop:
-  brightness = brightness + fadeAmount;
+int toDigit(char a) {
+  int d = a - '0';
+  if (d < 0) d = 0;
+  if (d > 9) d = 0;
+  return d;
+}
+void setColor() {
+  char *arg;
+  arg = sCmd.next();
+  Serial.println(arg);
+  cr = toDigit(arg[0]) * 100 + toDigit(arg[1]) * 10 + toDigit(arg[2]);
+  cg = toDigit(arg[3]) * 100 + toDigit(arg[4]) * 10 + toDigit(arg[5]);
+  cb = toDigit(arg[6]) * 100 + toDigit(arg[7]) * 10 + toDigit(arg[8]);
 
-  // reverse the direction of the fading at the ends of the fade:
-  if (brightness <= 0 || brightness >= 100) {
-    fadeAmount = -fadeAmount;
-  }
-  // wait for 30 milliseconds to see the dimming effect
-  delay(30);
 }
