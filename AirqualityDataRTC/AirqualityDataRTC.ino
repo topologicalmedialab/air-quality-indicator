@@ -71,6 +71,7 @@ void setup() {
 
 }
 
+
 bool hourChanged = true;//start true so ramps up
 int d = 0;//Day variable
 int h = 0;//Hour Variable
